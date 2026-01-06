@@ -1,0 +1,52 @@
+import hashlib
+import os
+
+def calculate_hash(file_path):
+    """
+    Calculates SHA-256 hash of a file.
+    """
+    sha256_hash = hashlib.sha256()
+
+    try:
+        with open(file_path, "rb") as file:
+            for byte_block in iter(lambda: file.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        print("File not found!")
+        return None
+
+
+def file_integrity_checker():
+    """
+    Compares original and current hash values
+    to detect file changes.
+    """
+    file_path = input("Enter file path: ")
+
+    if not os.path.exists(file_path):
+        print("Invalid file path.")
+        return
+
+    print("\nCalculating original hash...")
+    original_hash = calculate_hash(file_path)
+
+    if original_hash is None:
+        return
+
+    print(f"Original Hash: {original_hash}")
+
+    input("\nPress Enter after making changes to the file (if any)...")
+
+    print("\nRecalculating hash...")
+    new_hash = calculate_hash(file_path)
+    print(f"New Hash: {new_hash}")
+
+    if original_hash == new_hash:
+        print("\n✅ File integrity maintained. No changes detected.")
+    else:
+        print("\n⚠️ File integrity compromised! File has been modified.")
+
+
+if __name__ == "__main__":
+    file_integrity_checker()
